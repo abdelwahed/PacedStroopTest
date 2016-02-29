@@ -124,7 +124,7 @@ t.ExecutionMode = 'fixedSpacing';
         
         mTimer.UserData = tUserdata;
         
-        fprintf('Next Stroop Figure with EntryCount = %d and Congruence = %d\n',...
+%         fprintf('Next Stroop Figure with EntryCount = %d and Congruence = %d\n',...
 %             tUserdata.tCongruenceCount,tUserdata.Congruence);
         [stroopFigHdl] = StroopTest(words,colors,tUserdata.Congruence,1,stroopFigHdl);
     end
