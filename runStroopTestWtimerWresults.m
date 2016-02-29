@@ -80,7 +80,7 @@ t.ExecutionMode = 'fixedSpacing';
     %% Run the test
     function phaseTimerStart(mTimer,~)
         tUserdata = mTimer.UserData;
-%         fprintf('Starting StroopTest with Congruence = %d\n',tUserdata.Congruence);
+        fprintf('Starting StroopTest with Congruence = %d\n',tUserdata.Congruence);
         [stroopFigHdl] = StroopTest(words,colors,tUserdata.Congruence,1,FigHdl);
     end
 
@@ -106,10 +106,10 @@ t.ExecutionMode = 'fixedSpacing';
         
         if colorEvaluation
             disp('correct');
-            text(stroopFigHdl,0.1,0.1,'Correct Choice!!','Tag','evalMsg');
+            text(stroopFigHdl.Number,0.1,0.1,'Correct Choice!!','Tag','evalMsg');
         else
             disp('wrong');
-            text(stroopFigHdl,0.1,0.1,'Wrong Choice','Tag','evalMsg');
+            text(stroopFigHdl.Number,0.1,0.1,'Wrong Choice','Tag','evalMsg');
         end
             
 
@@ -124,13 +124,13 @@ t.ExecutionMode = 'fixedSpacing';
         
         mTimer.UserData = tUserdata;
         
-%         fprintf('Next Stroop Figure with EntryCount = %d and Congruence = %d\n',...
-%             tUserdata.tCongruenceCount,tUserdata.Congruence);
+        fprintf('Next Stroop Figure with EntryCount = %d and Congruence = %d\n',...
+            tUserdata.tCongruenceCount,tUserdata.Congruence);
         [stroopFigHdl] = StroopTest(words,colors,tUserdata.Congruence,1,stroopFigHdl);
     end
 
     function phaseTimerCleanup(mTimer,~)
-%         disp('Clearing Timer and all figures');
+        disp('Clearing Timer and all figures');
         close(stroopFigHdl);
         
         % Save the Stroop Test Data
