@@ -80,7 +80,7 @@ t.ExecutionMode = 'fixedSpacing';
     %% Run the test
     function phaseTimerStart(mTimer,~)
         tUserdata = mTimer.UserData;
-        fprintf('Starting StroopTest with Congruence = %d\n',tUserdata.Congruence);
+%         fprintf('Starting StroopTest with Congruence = %d\n',tUserdata.Congruence);
         [stroopFigHdl] = StroopTest(words,colors,tUserdata.Congruence,1,FigHdl);
     end
 
@@ -125,7 +125,7 @@ t.ExecutionMode = 'fixedSpacing';
         mTimer.UserData = tUserdata;
         
         fprintf('Next Stroop Figure with EntryCount = %d and Congruence = %d\n',...
-            tUserdata.tCongruenceCount,tUserdata.Congruence);
+%             tUserdata.tCongruenceCount,tUserdata.Congruence);
         [stroopFigHdl] = StroopTest(words,colors,tUserdata.Congruence,1,stroopFigHdl);
     end
 
