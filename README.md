@@ -10,3 +10,13 @@ figure was shown, exact time when the user responds along with the color, word a
 This project is inspired by a Matlab File Exchange entry on static Stroop Test by George Papazafeiropoulos.
 
 For more details, please check the example file in the html folder which contains function call prototypes and background about the Stroop Color-Word Interference test
+
+This code was developed as a part of a research project that resulted in the following publication, please cite this work if u find it useful:
+```
+@inproceedings{saha2015towards,  
+  title={Towards Incorporating Affective Feedback into Context-Aware Intelligent Environments},  
+  author={Saha, Deba Pratim and Martin, Thomas L and Knapp, R Benjamin},  
+  booktitle={Affective Computing and Intelligent Interactions, 2015. ACII'15},  
+  year={2015}  
+}  
+```
