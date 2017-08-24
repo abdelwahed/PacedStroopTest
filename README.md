@@ -1,5 +1,4 @@
 # Paced Stroop Test
-===============
 
 MATLAB implementation of Paced Stroop Color-Word Interference Test. This repository provides options to log physiological sensor data synced with each frame of Stroop Test.
 
