@@ -18,9 +18,11 @@ function t=runStroopTestWtimerWresults(totalRunTime,sPortObj,Congruence,FigHdl)
 %                       : This object can be used for passing any serial
 %                       object, which can be killed when the timer StopFcn 
 %                       is executed
-%       Congruence      : *OPTIONAL*
-%                         This variable, if passed decides the phase of the
-%                         stroop test i.e. True - congruent, False - Incongruent
+%       Congruence      : [OPTIONAL][String]
+%                         (as mentioned in parentheses)
+%                         If this arguement is provided, based on this value 
+%                         Congruent (C) or Incongruent(IC) or Randomised(R) 
+%                         Stroop Test will run.
 %       FigHdl          : *OPTIONAL*
 %                       : This is the figure handle for the test figures    
 % Outputs
@@ -37,24 +39,47 @@ function t=runStroopTestWtimerWresults(totalRunTime,sPortObj,Congruence,FigHdl)
 
 %% Argument Checking and Global Vars
 if nargin>4
-    error('err:ArgChk','This function takes 2 inputs, the 2nd input is optional');
+    error('err:ArgChk','This function takes 4 inputs, the 2nd,3rd and 4th inputs are optional');
+end
+if nargin<4
+    FigHdl = 1;
 end
 if nargin<3
-    FigHdl = 1;
-else if nargin<2
-        Congruence = false;
-     end
+    Congruence = 'IC';
 end
-
-global dataDirPath;
-global congruenceFlagSet;
+if nargin<2
+    sPortObj = {};
+end
 
 %% Define the words and colors
 global words;
 words = ['YELLOW ';'MAGENTA';'CYAN   ';'RED    ';'GREEN  ';'BLUE   ';'BLACK  ']; %1
 global colors;
 colors = [1 1 0;1 0 1;0 1 1;1 0 0;0 1 0;0 0 1;0 0 0]; %2
+global randomStroopArray;
+randomStroopArray = repmat([false false true true false true false true true false],1,6);
 global stroopFigHdl;
+
+switch Congruence
+    case 'C'
+        Congruence = true;  %Congruent stroop test flag
+        randomStroopFlag = false; %Randomised stroop test flag
+    case 'IC'
+        Congruence = false;  %InCongruent stroop test flag
+        randomStroopFlag = false; %Randomised stroop test flag
+    case 'R'
+        Congruence = randomStroopArray(1);  %InCongruent stroop test flag 
+        randomStroopFlag = true; %Randomised stroop test flag                    
+end
+
+% Set figure userdata based on the congruence props
+FigHdl = figure(FigHdl); set(FigHdl,'Visible','Off');
+fUserdata = get(FigHdl,'UserData');
+fUserdata.('randomStroopFlag') = randomStroopFlag;
+set(FigHdl,'UserData',fUserdata);
+
+global dataDirPath;
+global congruenceFlagSet;
 
 %% Create Timer
 secondsFigureChange = 3;                            
@@ -112,10 +137,15 @@ t.ExecutionMode = 'fixedSpacing';
             text(stroopFigHdl.Number,0.1,0.1,'Wrong Choice','Tag','evalMsg');
         end
             
+		% Check Stroop Test version - Random or Planned
+        if tUserdata.testData{tUserdata.tEntryCount,1}.randomStroopFlag
+            tUserdata.Congruence = randomStroopArray(tUserdata.tEntryCount);
+        end
+        
 
         % Check whether to change the Congruence value
         if ~congruenceFlagSet
-            if (tUserdata.tCongruenceCount * (mTimer.Period-mTimer.StartDelay)...
+            if (tUserdata.tCongruenceCount * (mTimer.Period)...
                     >= tUserdata.CongruenceInterval)
                 tUserdata.Congruence = ~ tUserdata.Congruence;
                 tUserdata.tCongruenceCount = 0;
@@ -128,6 +158,7 @@ t.ExecutionMode = 'fixedSpacing';
 %             tUserdata.tCongruenceCount,tUserdata.Congruence);
         [stroopFigHdl] = StroopTest(words,colors,tUserdata.Congruence,1,stroopFigHdl);
     end
+    
 
     function phaseTimerCleanup(mTimer,~)
         disp('Clearing Timer and all figures');
@@ -139,12 +170,23 @@ t.ExecutionMode = 'fixedSpacing';
         stroopDataDump  = evalin('base','{}');                         % Create an empty var in base WS
         assignin('base','stroopDataDump',tUserdata.testData);          % Assign value to var
         stroopDataDump  = evalin('base','stroopDataDump');             % Get the updated value from base WS
+		
+        % Close the serial port object, if valid obj was passed from main
+        if exist('sPortObj','var') && ~isempty(sPortObj)
+            serialDataDump  = evalin('base','serialDataDump');  % Get the value from base workspace
+            if isvalid(sPortObj)
+                fclose(sPortObj);
+                delete(sPortObj);
+                clear sPortObj;
+            end
+        end
                 
         % Choose to save test data
         saveQuestion = questdlg('Do you want to save all test data?','Save Test Data');
         switch saveQuestion
             case 'Yes'
                 folderName = strcat(dataDirPath,'user_',stroopDataDump{end}.userID);
+                disp(folderName);
                 if ~exist(folderName,'dir')
                     mkdir(strcat(folderName,'\stroop'));
                 end
@@ -164,16 +206,6 @@ t.ExecutionMode = 'fixedSpacing';
                 disp('YOUR DATA IS NOT SAVED');
                 
             case 'Cancel'
-        end
-        
-        % Close the serial port object, if valid obj was passed from main
-        if exist('sPortObj','var') && ~isempty(sPortObj)
-            serialDataDump  = evalin('base','serialDataDump');  % Get the value from base workspace
-            if isvalid(sPortObj)
-                fclose(sPortObj);
-                delete(sPortObj);
-                clear sPortObj;
-            end
         end
     end
 end

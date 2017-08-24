@@ -19,10 +19,12 @@ function [timerObj,sPortObj] = PacedStroopTest(LogSerialData,Congruence)
 %                         paced stroop test.                              
 %                         1= Try to Connect to Serial Port
 %                         0= DO NOT try to connect to serial port
-%       Congruence      : [OPTIONAL]
-%                         If this arguement is provided, totalRunTime value
-%                         will be ignored, and based on this value Congruent (C) 
-%                         or Incongruent(IC) Stroop Test will run for 60s time.
+%       Congruence      : [OPTIONAL][String]
+%                         (as mentioned in parentheses)
+%                         If this arguement is provided, based on this value 
+%                         Congruent (C) or Incongruent(IC) or Randomised(R) 
+%                         Stroop Test will run.
+%
 % Outputs
 %       timerObj        : Timer Obj (may be used to stop the timer)
 %       serialObj       : Serial Port Obj (may be used to free the serial port)
@@ -39,23 +41,21 @@ function [timerObj,sPortObj] = PacedStroopTest(LogSerialData,Congruence)
 % -------------------------------------------------------------------------
 
 %% Arg Check and Global Specs definitions
+totalRunTime    = 180;   % This is the total time for the test. Based on 
+                         % the Congruence string, Stroop test will run in 
+                         % Congruent, Incongruent or Randomised modes.
 global congruenceFlagSet;
-if nargin>2 || nargin==0
+if nargin>3 || nargin==0
     error('err:ArgChk','This function takes max of 2 inputs');
-else if nargin==1 % Congruence not set by user
-        totalRunTime    = 180;   % This value in sec, total 3 mins of test. This
-                                 % is divided as 1min of Congruent Stroop Test, 
-                                 % 1min test of Incongruent followed by 1min of
-                                 % Congruent Stroop Test.
-        Congruence      = false; % This value specifies that 3min stroop test will 
+else if nargin==2 % Congruence not set by user
+        Congruence      = 'IC'; % This value specifies that 3min stroop test will 
                                  % start with 1min each of IC --> C --> IC phases.
                                  
         congruenceFlagSet = false; % Indicates that congruence flag was not passed by user
-    else    % Congruence set by user
-        totalRunTime    = 60;    % If congruence input is present, it runs for 60s.
-        
+    else if nargin==3   % Congruence set by user
         congruenceFlagSet = true; % Indicates that congruence flag was passed by user
-     end
+        end
+    end
 end
 
 % data dir setting
@@ -89,19 +89,22 @@ else
     sPortObj = {};
 end
 
-
 %% Get test specific data
 FigHandle = figure('Visible','Off');                    % Create an invisible figure now to use UserData field
 
-prompt = {'Enter User ID:','Enter Phase Number:'};
+prompt = {'Enter User ID:','Enter Phase Number:','Location to save data:'};
 dlgTitle = 'Test Data';
 numLines = 1;
-defs = {'xx','yyyy'};
+defs = {'xx','yyyy','G:\OneDrive\RESEARCH\Knapp Research Group\Projects\CBAR-Project\VirtualGroceryStore\data\userstudy-phase1\Stroop'};
 answers = inputdlg(prompt,dlgTitle,numLines,defs);
 
 if isempty(strcmp(answers,'{}'))
     error('err:testStat','Please input the test statistics');
 else
+    % Change directory path if provided by the user
+    if (~isempty(answers(3)))
+        dataDirPath = char(answers(3));
+    end
     set(FigHandle,'UserData',struct('userID',answers(1),...
                                     'PhaseNum',answers(2),...
                                     'dataDirPath',dataDirPath,...
